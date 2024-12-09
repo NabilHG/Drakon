@@ -43,6 +43,20 @@ class Island():
         return content
 
 
+class Hades(Island):
+    def __init__(self, r, d):
+        super().__init__(r, d)
+        
+    def isValid(self,row,col):
+        pass
+        # valid = True
+        # shape = self.grid.shape
+        # for i in range(shape):
+        #     for j in range(shape):
+        #         # if not abs(i - ((shape + 1)/2)) + abs(j - ((shape + 1)/2)) < (shape + 1)/2: # Manhattan distance to check is not inside the rhombus shape
+        #             # valid = False
+                
+
 
 def letsPlayDrakon():
     print('''
@@ -64,6 +78,6 @@ two grids and the result of the game).
 if __name__ == "__main__":
     letsPlayDrakon()
     
-    island = Island(3, 5)
-    print(island)
+    a = Hades(3,5)
+    print(a)
  
