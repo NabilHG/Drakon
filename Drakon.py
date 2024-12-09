@@ -1,4 +1,5 @@
 import numpy as np
+import random 
 
 class Island():
     def __init__(self, r, d):
@@ -48,14 +49,81 @@ class Hades(Island):
         super().__init__(r, d)
         
     def isValid(self,row,col):
-        pass
-        # valid = True
-        # shape = self.grid.shape
-        # for i in range(shape):
-        #     for j in range(shape):
-        #         # if not abs(i - ((shape + 1)/2)) + abs(j - ((shape + 1)/2)) < (shape + 1)/2: # Manhattan distance to check is not inside the rhombus shape
-        #             # valid = False
+        def adjacent(row,col):
+            dim = self.grid.shape[0]  # Size of the grid
+            # Determine bounds for slicing
+            start_row = max(0, row - 1)
+            end_row = min(dim, row + 2) 
+            start_col = max(0, col - 1)
+            end_col = min(dim, col + 2)
+
+            # Slice the 3x3 region centered at (row, col)
+            subgrid = self.grid[start_row:end_row, start_col:end_col]
+
+            # Check if any value is -1 (dragon egg), excluding the center cell
+            return np.any(subgrid == -1)
+        
+
+        valid = True
+
+        if self.grid[row, col] == -9:
+            valid = False
+        elif adjacent(row, col):
+            valid = False
+        elif self.grid[row, col] == -1:
+            valid = False
+
+        return valid
+
+    def plantDragonEggs(self):
+        def backtrack(remaining_dragons, checked_positions):
+            if remaining_dragons == 0: # all eggs placed
+                return True
+
+            # generate random pos that have not been checked yet
+            dim = self.grid.shape[0]
+            while len(checked_positions) < dim * dim:  # avoiding infinite loops
+                row, col = random.randint(0, dim - 1), random.randint(0, dim - 1)
+                if (row, col) in checked_positions:
+                    continue
+                checked_positions.add((row, col))  # mark position as checked
+
+                if self.isValid(row, col):
+                    self.grid[row, col] = -1 
+                    if backtrack(remaining_dragons - 1, checked_positions):
+                        return True
+                    # backtracking, remove the dragon egg and try another position
+                    self.grid[row, col] = 0
+
+            return False  # no positions left 
+
+        checked_positions = set()  # track positions already checked
+        return backtrack(self.numdragons, checked_positions)
+    
+    def assignNumbersToGrid(self):
+        dim = self.grid.shape[0]  # Size of the grid
+        for row in range(dim):
+            for col in range(dim):
+                if self.grid[row, col] == -1:
+                    continue  
                 
+                # Determine bounds for slicing
+                start_row = max(0, row - 1)
+                end_row = min(dim, row + 2) # +2, becouse it would be an incomplet subgrid when slicing 
+                start_col = max(0, col - 1)
+                end_col = min(dim, col + 2) # +2, becouse it would be an incomplet subgrid when slicing
+
+                # Slice the 3x3 region centered at (row, col)
+                subgrid = self.grid[start_row:end_row, start_col:end_col]
+
+                # Count the number of dragon eggs (-1) in the subgrid
+                dragon_count = np.sum(subgrid == -1)
+
+                # Assign the count to the current cell
+                self.grid[row, col] = dragon_count          
+
+
+
 
 
 def letsPlayDrakon():
@@ -78,6 +146,6 @@ two grids and the result of the game).
 if __name__ == "__main__":
     letsPlayDrakon()
     
-    a = Hades(3,5)
-    print(a)
+    a = Hades(2,5)
+    print(len(a.grid), "eaf")
  
